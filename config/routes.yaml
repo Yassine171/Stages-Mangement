@@ -3,3 +3,26 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+# api_login_check:
+#     path: /api/login_check
+api_refresh_token:
+    path:   /token/refresh
+api_login_check:
+    path: /api/login_check
+
+
+# etudiant_api_login_check:
+#   path: /api/etudiant/login_check
+#   methods: ['POST']
+
+# entreprise_api_login_check:
+#   path: /api/entreprise/login_check
+#   methods: ['POST']
+
+# enseignat_api_login_check:
+#   path: /api/enseignat/login_check
+#   methods: ['POST']
+
+# gesdinet_jwt_refresh_token:
+#   path: /api/token/refresh
+#   controller: gesdinet.jwtrefreshtoken::refresh

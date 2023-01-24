@@ -1,0 +1,218 @@
+security:
+    enable_authenticator_manager: true
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        # App\Entity\Prof:
+        #     algorithm: auto
+
+        # App\Entity\Etudiant:
+        #     algorithm: auto
+        
+        # App\Entity\Entreprise:
+        #     algorithm: auto
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        #users_in_memory: { memory: null }
+        app_etudiant_provider:
+            entity:
+                class: App\Entity\Etudiant
+                property: email
+        app_enseignat_provider:
+            entity:
+                class: App\Entity\Prof
+                property: email
+        app_entreprise_provider:
+            entity:
+                class: App\Entity\Entreprise
+                property: email
+        all_users:
+            chain:
+                providers: ['app_etudiant_provider', 'app_enseignat_provider','app_entreprise_provider']
+    firewalls:
+        # login_etudiant:
+        #     pattern: ^/etudiant/api/login
+        #     stateless: true
+        #     provider: app_etudiant_provider
+        #     json_login:
+        #         check_path: /etudiant/api/login_check
+        #         success_handler: lexik_jwt_authentication.handler.authentication_success
+        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # api_etudiant:
+        #     pattern:   ^/etudiant/api
+        #     stateless: true
+        #     provider: app_etudiant_provider
+        #     jwt: ~
+        # refresh_etudiant:
+        #     pattern:  ^/etudiant/token/refresh
+        #     stateless: true
+        #     provider: app_etudiant_provider
+        #     refresh_jwt:
+        #         check_path: /etudiant/token/refresh
+
+        # api_token_refresh:
+        #     pattern: ^/api/token/refresh
+        #     stateless: true
+
+        # main:
+        #     stateless: true
+        #     provider: all_users
+        #     json_login:
+        #         check_path: auth # The name in routes.yaml is enough for mapping
+        #         username_path: email
+        #         password_path: password
+        #         success_handler: lexik_jwt_authentication.handler.authentication_success
+        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        #     jwt: ~
+        login:
+            pattern: ^/api/login
+            stateless: true
+            provider: all_users
+            json_login:
+                check_path: /api/login_check
+                provider: all_users
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        api:
+            pattern:   ^/api
+            stateless: true
+            provider: all_users
+            jwt: ~
+        refresh:
+            pattern:  ^/token/refresh
+            stateless: true
+            provider: all_users
+            refresh_jwt:
+                check_path: api_refresh_token
+    
+        
+        # api_login_entreprise:
+        #     pattern: ^/api/entreprise/login_check
+        #     stateless: true
+        #     provider: app_entreprise_provider
+        #     json_login:
+        #         check_path: /api/entreprise/login_check
+        #         username_path: email
+        #         password_path: password
+        #         success_handler: lexik_jwt_authentication.handler.authentication_success
+        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        # api_login_etudiant:
+        #     pattern: ^/api/etudiant/login_check
+        #     stateless: true
+        #     provider: app_etudiant_provider
+        #     json_login:
+        #         check_path: /api/etudiant/login_check
+        #         username_path: email
+        #         password_path: password
+        #         success_handler: lexik_jwt_authentication.handler.authentication_success
+        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+
+        # api_login_enseignat:
+        #     pattern: ^/api/enseignat/login_check
+        #     stateless: true
+        #     provider: app_enseignat_provider
+        #     json_login:
+        #         check_path: /api/enseignat/login_check
+        #         username_path: email
+        #         password_path: password
+        #         success_handler: lexik_jwt_authentication.handler.authentication_success
+        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        # api:
+        #     stateless: true
+        #     pattern: ^/api/enseignat
+        #     provider: all_users
+        #     jwt: ~
+        # api1:
+        #     pattern: ^/api/entreprise
+        #     stateless: true
+        #     provider: all_users
+        #     jwt: ~
+        # api2:
+        #     pattern: ^/api/etudiant
+        #     stateless: true
+        #     provider: all_users
+        #     jwt: ~
+
+        # login_enseignat:
+        #     pattern: ^/enseignat/api/login
+        #     stateless: true
+        #     provider: app_enseignat_provider
+        #     json_login:
+        #         check_path: /enseignat/api/login_check
+        #         success_handler: lexik_jwt_authentication.handler.authentication_success
+        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # api_enseignat:
+        #     pattern:   ^/enseignat/api
+        #     stateless: true
+        #     provider: app_enseignat_provider
+        #     jwt: ~
+        # refresh_enseignat:
+        #     pattern:  ^/enseignat/token/refresh
+        #     stateless: true
+        #     provider: app_enseignat_provider
+        #     refresh_jwt:
+        #         check_path: /enseignat/token/refresh
+
+        # login_entreprise:
+        #     pattern: ^/entreprise/api/login
+        #     stateless: true
+        #     provider: app_entreprise_provider
+        #     json_login:
+        #         check_path: /entreprise/api/login_check
+        #         success_handler: lexik_jwt_authentication.handler.authentication_success
+        #         failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # api_entreprise:
+        #     pattern:   ^/entreprise/api
+        #     stateless: true
+        #     provider: app_entreprise_provider
+        #     jwt: ~
+        # refresh_entreprise:
+        #     pattern:  ^/entreprise/token/refresh
+        #     stateless: true
+        #     provider: app_entreprise_provider
+        #     refresh_jwt:
+        #         check_path: /entreprise/token/refresh
+
+
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        #main:
+            #lazy: true
+            #provider: users_in_memory
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/api/etudiants/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/profs/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/entreprises/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/etudiants,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/profs,       roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/entreprises,  roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/filieres,       roles: IS_AUTHENTICATED_FULLY }
+        # - { path: ^/admin, roles: ROLE_ADMIN }
+        # - { path: ^/profile, roles: ROLE_USER }
+
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon
