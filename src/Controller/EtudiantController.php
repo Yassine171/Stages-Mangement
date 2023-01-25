@@ -9,19 +9,26 @@ use App\Repository\FiliereRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
 use JMS\SerializerBundle\DependencyInjection\JMSSerializerExtension;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
+use Symfony\Component\VarDumper\Dumper\ServerDumper;
+use Symfony\Component\VarDumper\VarDumper;
 
  #[Route('/api/etudiants', name: 'api_etudiant_')]  
 class EtudiantController extends AbstractController
 {
 
-    public function __construct(private EntityManagerInterface $em,private UserPasswordHasherInterface $passwordHasher,private EtudiantRepository $etudiantRepository,private SerializerInterface $jmsSerializer)
+    public function __construct(private EntityManagerInterface $em,private UserPasswordHasherInterface $passwordHasher,private EtudiantRepository $etudiantRepository,private SerializerInterface $jmsSerializer,
+    private LoggerInterface  $logger)
     {
 
      } 
@@ -78,10 +85,18 @@ class EtudiantController extends AbstractController
         return new JsonResponse($json, 200, [], true);
     }
 
-    #[Route('/{id}', name: 'get',methods: ['GET'])]
+    #[Route('/{id}', name: 'get',methods: ['GET'],requirements: ['id' => '\d+'])]
     public function show(Etudiant $etudiant){
 
         $json = $this->jmsSerializer->serialize($etudiant, 'json', SerializationContext::create()->setGroups(array('etudiant')));
+        return new JsonResponse($json, 200, [], true);
+       // return $this->json($etudiant);
+    }
+
+    #[Route('/{email}', name: 'getByEmail',methods: ['GET'])]
+    public function showByEmail(String $email){
+       $prof =$this->etudiantRepository->findOneByEmail($email);
+        $json = $this->jmsSerializer->serialize($prof, 'json', SerializationContext::create()->setGroups(array('etudiant')));
         return new JsonResponse($json, 200, [], true);
        // return $this->json($etudiant);
     }
@@ -90,22 +105,39 @@ class EtudiantController extends AbstractController
     public function update(Etudiant $etudiant, Request $request,SluggerInterface $slugger)
     {
     
-        //$data = json_decode($request->getContent(), true);
-       //dd($request->request->all(),$request->files->get('cv'));
-
+        $this->logger->alert("hello");
+        
         $form = $this->createForm(EtudiantType::class, $etudiant,array('csrf_protection' => false));
-        //dump($form->getData());
+        
+        //$data = json_decode($request->getContent(), true);
+        //$this->logger->alert(json_encode($request->getContent()));
+        $cv = $request->request->get('cv');
+        $request->request->remove('cv');
+        // $data=json_decode($request->request->all(), true);
+        // $this->logger->alert(json_encode($data));
+        $this->logger->alert(json_encode($form->submit($request->request->all(),false)));
 
-         $form->submit($request->request->all(),false);
-         $cv=$request->files->get('cv');
-        // dump($form->getData());
-        //  foreach ($form->getErrors() as $error) {
-        //     // do something with the error
-        //     dump($error->getMessage(),$error->getOrigin()->getName());
-        // };
-   
+        
+       // $this->logger->alert(json_encode($request->request->all()));
+        //($data);
+        // $this->logger->alert($data.toStr);
+        //dump($form->getData());
+//  foreach ($form->getErrors() as $error) {
+//             // do something with the error
+//             $this->logger->alert(json_encode($error->getMessage()));
+//             $this->logger->alert(json_encode($error->getOrigin()->getName()));
+//         };
+
+        $this->logger->alert(json_encode($request->files->get('cv')));
+        
+        if($request->files->get('cv')){
+            $cv=$request->files->get('cv');
+        }
+        dump($form->getData());
+        
+   dump($cv);
         if ($form->isValid()) {
-            if($cv){
+            if($cv instanceof UploadedFile){
                 $originalFilename = pathinfo($cv->getClientOriginalName(), PATHINFO_FILENAME);
                 // this is needed to safely include the file name as part of the URL
                 $safeFilename = $slugger->slug($originalFilename);
@@ -125,6 +157,7 @@ class EtudiantController extends AbstractController
              $context = new SerializationContext();
              $context->setGroups(['etudiant']);
              $json = $this->jmsSerializer->serialize($etudiant, 'json', SerializationContext::create()->setGroups(array('etudiant')));
+             $this->logger->alert($json);
              return new JsonResponse($json, 200, [], true);
          }
          return new JsonResponse($form->getErrors(), 400);

@@ -55,9 +55,17 @@ class ProfController extends AbstractController
          return new JsonResponse($json, 200, [], true);
      }
 
-     #[Route('/{id}', name: 'get',methods: ['GET'])]
+     #[Route('/{id}', name: 'get',methods: ['GET'],requirements: ['id' => '\d+'])]
      public function show(Prof $prof){
  
+         $json = $this->jmsSerializer->serialize($prof, 'json', SerializationContext::create()->setGroups(array('prof')));
+         return new JsonResponse($json, 200, [], true);
+        // return $this->json($etudiant);
+     }
+
+     #[Route('/{email}', name: 'getByEmail',methods: ['GET'])]
+     public function showByEmail(String $email){
+        $prof =$this->profRepository->findOneByEmail($email);
          $json = $this->jmsSerializer->serialize($prof, 'json', SerializationContext::create()->setGroups(array('prof')));
          return new JsonResponse($json, 200, [], true);
         // return $this->json($etudiant);

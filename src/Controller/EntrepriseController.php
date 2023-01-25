@@ -19,7 +19,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class EntrepriseController extends AbstractController
 {
 
-    public function __construct(private EntityManagerInterface $em,private UserPasswordHasherInterface $passwordHasher,private EntrepriseRepository $entrepriseRepository,private EtudiantRepository $etudiantRepository,private SerializerInterface $jmsSerializer)
+    public function __construct(private EntityManagerInterface $em,private UserPasswordHasherInterface $passwordHasher,private EntrepriseRepository $entrepriseRepository,private SerializerInterface $jmsSerializer)
     {}
 
 
@@ -27,7 +27,7 @@ class EntrepriseController extends AbstractController
  
 
      #[Route('/register', name: 'register')]
-     public function register(Request $request,SluggerInterface $slugger): JsonResponse
+     public function register(Request $request): JsonResponse
      {
         $email = $request->get('email');
         $plaintextPassword = $request->get('password');
@@ -50,10 +50,18 @@ class EntrepriseController extends AbstractController
 
 
 
-     #[Route('/{id}', name: 'get',methods: ['GET'])]
+     #[Route('/{id}', name: 'get',methods: ['GET'],requirements: ['id' => '\d+'])]
      public function show(Entreprise $entreprise){
  
          $json = $this->jmsSerializer->serialize($entreprise, 'json', SerializationContext::create()->setGroups(array('entreprise')));
+         return new JsonResponse($json, 200, [], true);
+        // return $this->json($etudiant);
+     }
+
+     #[Route('/{email}', name: 'getByEmail',methods: ['GET'])]
+     public function showByEmail(String $email){
+        $prof =$this->entrepriseRepository->findOneByEmail($email);
+         $json = $this->jmsSerializer->serialize($prof, 'json', SerializationContext::create()->setGroups(array('entreprise')));
          return new JsonResponse($json, 200, [], true);
         // return $this->json($etudiant);
      }

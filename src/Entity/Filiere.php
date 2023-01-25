@@ -15,7 +15,7 @@ class Filiere
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['filiere'])]
+    #[Groups(['filiere','etudiant'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]

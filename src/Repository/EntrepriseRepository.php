@@ -54,6 +54,15 @@ class EntrepriseRepository extends ServiceEntityRepository
 //        ;
 //    }
 
+        public function findOneByEmail($value): ?Entreprise
+        {
+            return $this->createQueryBuilder('e')
+                ->andWhere('e.email = :val')
+                ->setParameter('val', $value)
+                ->getQuery()
+                ->getOneOrNullResult()
+            ;
+        }
 //    public function findOneBySomeField($value): ?Entreprise
 //    {
 //        return $this->createQueryBuilder('e')

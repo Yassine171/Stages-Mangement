@@ -39,6 +39,16 @@ class EtudiantRepository extends ServiceEntityRepository
         }
     }
 
+    public function findOneByEmail($value): ?Etudiant
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.email = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
 //    /**
 //     * @return Etudiant[] Returns an array of Etudiant objects
 //     */
